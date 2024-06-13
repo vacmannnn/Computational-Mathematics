@@ -94,12 +94,10 @@ class advanced:
     @staticmethod
     def compress(image_data, ratio) -> bytes:    
         np.random.seed(0)
-        n, m = image_data.shape
-        u = np.zeros((n, ratio))
+        u = np.zeros((image_data.shape[0], ratio))
         sigma = np.zeros(ratio)
-        v = np.zeros((m, ratio))
+        v = np.zeros((image_data.shape[1], ratio))
 
-        counter = 0
         time_bound = time.time() * 1000 + 1000
         while time.time() * 1000 < time_bound:
             q, _ = np.linalg.qr(np.dot(image_data, v))
@@ -107,8 +105,7 @@ class advanced:
             q, r = np.linalg.qr(np.dot(image_data.T, u))
             v = q[:, :ratio]
             sigma = np.diag(r[:ratio, :ratio])
-            counter += 1
-            if counter % 10 == 0 and np.allclose(np.dot(image_data, v), np.dot(u, r[:ratio, :ratio]), 1e-8):
+            if np.allclose(np.dot(image_data, v), np.dot(u, r[:ratio, :ratio]), 1e-8):
                 break
 
         data = np.concatenate((u.ravel(), sigma, v.T.ravel()))
